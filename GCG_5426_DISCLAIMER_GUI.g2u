@@ -1,0 +1,68 @@
+Program.Sub.Preflight.Start
+Program.Sub.Preflight.End
+
+Program.Sub.Main.Start
+
+'Created by Pablo Salinas for ATLASS-SSI on 03/06/2019
+'This is for ARC Project 5426. The purpose of this script is to add a Disclaimer Pop-up on GUI when Clocking off the Job
+
+F.Intrinsic.Control.Try
+	V.Local.sError.Declare
+
+
+F.Intrinsic.Control.SelectCase(V.Caller.Hook)
+	F.Intrinsic.Control.Case("15922")
+		F.Intrinsic.Control.CallSub("Disclaimer")
+F.Intrinsic.Control.EndSelect
+
+
+
+
+F.Intrinsic.Control.Catch
+	F.Intrinsic.String.Build("Project: {1}{0}Subroutine: {2} Error: {3} with Description {4}", "GCG_5426_DISCLAIMER", v.Ambient.CurrentSubroutine, v.Ambient.ErrorNumber, v.Ambient.ErrorDescription, v.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+
+F.Intrinsic.Control.EndTry
+
+
+Program.Sub.Main.End
+
+
+Program.Sub.Disclaimer.Start
+
+F.Intrinsic.Control.Try
+	V.Local.sError.Declare
+
+	v.Local.sFileRet.Declare
+	V.Local.sFile.Declare
+	V.Local.bexists.Declare(Boolean)
+	
+
+
+	f.Intrinsic.String.Build("{0}\Disclaimer",v.Caller.FilesDir,v.Local.sfile)
+	'CHECK TO SEE IF THE DIRECTORY EXIST
+	F.Intrinsic.File.Exists(V.Local.sfile,V.Local.bexists)
+	'IF THE DIRECTORY AND FILE DOESN'T EXIT CREATE IT
+	F.Intrinsic.Control.If(V.Local.bexists,=,False)
+		F.Intrinsic.File.CreateDir(V.Local.sfile)
+		'BUILDING THE FILE FOR THEM TO READ FROM AND SETTING A DEFAULT
+		F.Intrinsic.String.Build("{0}\Disclaimer.txt", v.Local.sFile, v.Local.sFile)
+		F.Intrinsic.File.String2File(v.Local.sFile,"By clocking out I am verifying that I have not been injured and/or witnessed an injury without properly reporting said occurence to my supervisor according to ATLAS-SSI company procedures and policies.")
+	F.Intrinsic.Control.Else
+		'FILE TO READ FROM
+		F.Intrinsic.String.Build("{0}\Disclaimer.txt", v.Local.sFile, v.Local.sFile)
+	F.Intrinsic.Control.EndIf
+
+	'READING THE FILE INTO A VARIABLE
+	F.Intrinsic.File.File2String(v.Local.sFile,v.Local.sFileRet)
+
+	'FILE VARIABLE OUTPUTTED INTO THE MSG BOX POPING UP FOR THE CUSTOMER TO SEE 
+	f.Intrinsic.UI.Msgbox(v.Local.sFileRet)
+	
+	
+F.Intrinsic.Control.Catch
+	F.Intrinsic.String.Build("Project: {1}{0}Subroutine: {2} Error: {3} with Description {4}", "GCG_5426_DISCLAIMER", v.Ambient.CurrentSubroutine, v.Ambient.ErrorNumber, v.Ambient.ErrorDescription, v.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+
+F.Intrinsic.Control.EndTry	
+Program.Sub.Disclaimer.End
